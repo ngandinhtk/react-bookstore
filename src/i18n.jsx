@@ -1,0 +1,66 @@
+﻿import React, { createContext, useContext, useEffect, useState } from 'react';
+const translations = {
+ 'NHÀ SÁCH & GÓC ĐỌC':'BOOKSHOP & READING ROOM','GÓC SÁCH BÌNH YÊN':'A CONSIDERED BOOKSHOP','Stillleaf — về trang đầu':'Stillleaf — back to the top',
+ 'Điều hướng chính':'Main navigation','Kệ sách':'Bookshop','Gợi ý đọc':'Reading lists','Về Stillleaf':'Our story','Túi sách':'Book bag',
+ 'DÀNH CHO TÌNH YÊU VỚI SÁCH':'FOR THE LOVE OF A GOOD BOOK','Một góc yên.':'A quieter corner.','Một trời mới.':'A wider world.',
+ 'Những trang sách để đắm mình.':'Books to get lost in.','Những ý tưởng để mang theo.':'Ideas to carry with you.',
+ 'Tìm cuốn sách tiếp theo ↗':'Find your next read ↗','Chọn sách bằng sự tò mò. Đọc theo cách của bạn.':'Independently minded. Thoughtfully selected.',
+ 'Hai cuốn sách được tuyển chọn':'Two thoughtfully selected books','STILLLEAF TUYỂN CHỌN':'SELECTED BY STILLLEAF','Một trang sách mới':'A fresh page',
+ 'Hành trình':'A journey','vào bên trong.':'within.','GÓC ĐỌC CỦA BẠN':'YOUR READING CORNER','Một góc nhìn khác':'A different perspective',
+ 'Một khoảng lặng cho góc nhìn khác.':'A little space for a different perspective.','SÁCH HAY, CHỌN BẰNG SỰ QUAN TÂM':'GOOD STORIES, THOUGHTFULLY SELECTED',
+ 'Một kệ sách đáng khám phá':'A shelf worth exploring','ĐỌC VÀ KẾT NỐI':'READ AND CONNECT','BỘ SƯU TẬP ĐƯỢC TUYỂN CHỌN':'THE CONSIDERED COLLECTION',
+ 'Gặp cuốn sách bạn sẽ yêu.':'Meet your next favourite.','Người bạn cũ. Khám phá mới.':'Old friends. New discoveries.','Mỗi cuốn sách đều có lý do để ở đây.':'Every book has a reason to be here.',
+ 'Thể loại':'Categories','Danh mục sản phẩm':'Product categories','Tất cả sản phẩm':'All products','Tất cả thể loại':'All categories','Sách':'Books','Tất cả':'All books','Tên sách hoặc tác giả':'Title or author','Tên sách hoặc thương hiệu':'Book title or brand','Tìm sách':'Search books','Tìm sách hoặc máy đọc sách':'Search books or e-readers','Đang tải kệ sách từ Google Sheets…':'Loading the bookshop…',
+ 'Đọc & thảo luận ↗':'Read & discuss ↗','Chưa tìm thấy sách. Hãy thử từ khóa hoặc thể loại khác.':'No books found. Try another title or category.',
+ 'MỘT CHÚT GỢI Ý':'A LITTLE DIRECTION','Đi theo':'Follow your','sự tò mò.':'curiosity.','Bắt đầu bằng một cảm xúc,':'Start with a feeling,','một ý tưởng, một câu hỏi.':'an idea, a question.',
+ '01 / CHẬM LẠI':'01 / SLOW DOWN','Cho một cuối tuần':'For a quieter','bình yên hơn.':'kind of weekend.','Khoảng lặng để đọc. Câu chuyện để nhớ.':'Space to pause. Stories to stay with.',
+ 'Khám phá danh sách ↗':'Explore the reading list ↗','02 / NHÌN LẠI':'02 / LOOK AGAIN','Một góc nhìn':'A different','thật khác.':'point of view.','Cuốn sách nhỏ. Ý tưởng rộng mở.':'Small books. Expansive ideas.',
+ 'ĐÔI LỜI TỪ STILLLEAF':'A NOTE FROM STILLLEAF','Bớt ồn ào.':'Less noise.','Thêm chỗ cho câu chuyện.':'More room for stories.',
+ 'Một nhà sách hay là lời mời bạn nán lại, khám phá và tìm thấy điều mình chưa từng nghĩ sẽ tìm kiếm.':'A good bookshop is an invitation to linger, discover, and find something you didn’t know you were looking for.',
+ 'Tại đây, những tiếng nói bền lâu gặp gỡ những góc nhìn mới. Chọn một cuốn sách, lưu lại điều bạn thích và cùng trò chuyện sau mỗi trang đọc.':'Here, enduring voices meet fresh perspectives. Choose a book, save what interests you, and join the conversation after reading.',
+ 'Chúc bạn đọc vui, Stillleaf':'Happy reading, Stillleaf','Một cuốn sách hay, một khởi đầu đẹp.':'A good book is a good beginning.','Về kệ sách ↑':'Back to the shelves ↑',
+ 'Túi sách và gợi ý đọc':'Book bag and reading lists','Đóng':'Close','Đã lưu vào túi sách':'Saved to book bag','Lưu vào túi sách +':'Save to book bag +',
+ 'TÌM TẠI NHÀ SÁCH':'FIND IT AT A BOOKSHOP','Xem nơi mua sách ↗':'Visit the bookseller ↗','Tìm trên Bookshop.org ↗':'Search Bookshop.org ↗','Tìm trên Blackwell’s ↗':'Search Blackwell’s ↗',
+ 'Kiểm tra phiên bản, ngôn ngữ, giá và tình trạng tại nhà bán. Các liên kết chưa cấu hình hoa hồng.':'Check the edition, language, price, and availability with the retailer. Affiliate tracking is not configured.',
+ 'DANH SÁCH CỦA BẠN':'YOUR READING LIST','Túi sách.':'Your book bag.','Bỏ lưu':'Remove','Chưa có sách được lưu. Hãy ghé kệ sách để chọn nhé.':'Your book bag is empty. Explore the shelves to find your next read.',
+ 'Túi sách được lưu trên trình duyệt. Chưa kết nối thanh toán trực tiếp.':'Your reading list is saved in this browser. Direct checkout is not connected.',
+ 'GỢI Ý ĐỌC TỪ STILLLEAF':'THE STILLLEAF READING LISTS','Cho một cuối tuần bình yên.':'A quieter kind of weekend.','Một góc nhìn khác.':'A different point of view.',
+ 'Trình duyệt không cho phép lưu túi sách. Danh sách chỉ được giữ trong lần mở này.':'Your browser could not save your book bag. It will be kept for this visit only.',
+ 'CÙNG ĐỌC, CÙNG CHIA SẺ':'READ TOGETHER, SHARE TOGETHER','Thảo luận nội dung sách':'Book discussion',
+ 'Điều gì khiến bạn suy nghĩ sau khi đọc? Chia sẻ góc nhìn và tôn trọng trải nghiệm của người khác.':'What stayed with you after reading? Share your perspective and respect other readers.',
+ 'Bạn đang tham gia với tên hiển thị, chưa có tài khoản xác thực. Bài viết được lưu trên máy chủ này.':'You are posting with a display name, without a verified account. Discussions are saved on this server.',
+ 'Đang tải thảo luận…':'Loading discussions…','Thử tải lại':'Try again','Chưa có thảo luận. Hãy mở đầu cuộc trò chuyện.':'No discussions yet. Start the conversation.',
+ 'Có tiết lộ nội dung — nhấn để đọc':'Contains spoilers — click to read','Trả lời':'Reply','Gửi cảm nhận của bạn':'Share your thoughts','Hủy trả lời':'Cancel reply',
+ 'Tên hiển thị':'Display name','Bạn muốn được gọi là gì?':'What should we call you?','Nội dung':'Your thoughts','Một chi tiết, một câu hỏi, một góc nhìn…':'A detail, a question, a different perspective…',
+ 'Có tiết lộ nội dung sách':'Contains spoilers','Đang gửi…':'Posting…','Đăng thảo luận ↗':'Post discussion ↗','Liên hệ giá':'Ask for price',
+ 'Chưa cập nhật tác giả':'Author not yet listed','Chưa cập nhật định dạng':'Format not yet listed','Chưa phân loại':'Uncategorised','Nội dung sách đang được cập nhật.':'A description will be added soon.',
+ 'Chưa đồng bộ được dữ liệu mới. Đang hiển thị bản cập nhật gần nhất.':'Unable to sync new data. Showing the last successful update.',
+ 'Chưa tải được danh mục. Hệ thống sẽ tự thử lại sau một phút.':'Unable to load the collection. We will retry in one minute.',
+ 'Chưa tải được thảo luận. Vui lòng kiểm tra máy chủ và thử lại.':'Unable to load discussions. Please try again.',
+ 'Không gửi được bình luận.':'Unable to post your comment.','Không gửi được bình luận. Vui lòng thử lại.':'Unable to post your comment. Please try again.',
+ 'Đặt mua sách':'Order this book','ĐẶT SÁCH VỚI STILLLEAF':'ORDER FROM STILLLEAF','Đặt qua':'Order via',
+ 'Đặt mua máy đọc sách':'Order this e-reader','ĐẶT MÁY ĐỌC SÁCH VỚI STILLLEAF':'ORDER AN E-READER FROM STILLLEAF',
+ 'Máy đọc sách đã hết hàng':'This e-reader is out of stock','Máy đọc sách hiện đã hết hàng.':'This e-reader is currently out of stock.',
+ 'Gửi tên máy cho shop để xác nhận đơn và phí vận chuyển.':'Send the e-reader model to the shop to confirm your order and shipping.',
+ 'Nội dung đặt máy đọc sách để gửi shop':'E-reader order message','Nội dung đặt máy đọc sách':'E-reader order message',
+ 'MUA MÁY ĐỌC SÁCH':'BUY AN E-READER','Xem nơi bán ↗':'View retailer ↗',
+ 'Xem chi tiết ↗':'View details ↗','Tìm kiếm sách hoặc máy đọc sách':'Search books or e-readers',
+ 'Máy đọc sách':'E-readers','Tên sản phẩm':'Product name','Mô tả sản phẩm':'Product description',
+ 'Loại sản phẩm':'Product type','Trạng thái bán':'Sale status','Giá bán':'Sale price',
+ 'Sách hoặc máy đọc sách':'Books and e-readers','Sản phẩm không tìm thấy. Hãy thử từ khóa hoặc danh mục khác.':'No products found. Try another search or category.',
+ 'Sách đã hết hàng':'This book is out of stock','Shop chưa cập nhật địa chỉ liên hệ':'The shop has not added its contact link yet',
+ 'Sách hiện đã hết hàng.':'This book is currently out of stock.','Gửi tên sách cho shop để xác nhận đơn và phí vận chuyển.':'Send the book title to the shop to confirm your order and shipping.',
+ 'Nội dung đặt sách để gửi shop':'Order message for the shop','Nội dung đặt sách':'Order message','Sao chép nội dung':'Copy message',
+ 'Đã sao chép. Bạn có thể dán vào cuộc trò chuyện với shop.':'Copied. Paste it into your conversation with the shop.',
+ 'Bạn có thể chọn và sao chép nội dung trong ô bên dưới.':'Select and copy the message below.',
+ 'triết học':'Philosophy','Văn học':'Fiction','Tiểu luận':'Essays','Thiên nhiên':'Nature','Tư tưởng':'Ideas','Thơ':'Poetry'
+};
+export function translate(text, lang) { return lang === 'en' ? (translations[text] ?? text) : text; }
+const LanguageContext = createContext(null);
+export function LanguageProvider({children, initialLanguage}) {
+ const [lang,setLang]=useState(()=>{if(initialLanguage==='vi'||initialLanguage==='en')return initialLanguage;try{return localStorage.getItem('stillleaf-language')==='en'?'en':'vi'}catch{return 'vi'}});
+ useEffect(()=>{document.documentElement.lang=lang;document.title=lang==='en'?'Stillleaf — A considered bookshop':'Stillleaf — Góc sách bình yên';try{localStorage.setItem('stillleaf-language',lang)}catch{}},[lang]);
+ return <LanguageContext.Provider value={{lang,setLang,t:text=>translate(text,lang)}}>{children}</LanguageContext.Provider>;
+}
+export function useLanguage(){return useContext(LanguageContext)}
+export function LanguageSwitch(){const {lang,setLang}=useLanguage();return <div className="language-switch" role="group" aria-label={lang==='vi'?'Ngôn ngữ':'Language'}>{[['vi','VI','Tiếng Việt'],['en','EN','English']].map(([value,label,title])=><button key={value} lang={value} title={title} aria-label={title} aria-pressed={lang===value} onClick={()=>setLang(value)}>{label}</button>)}</div>}

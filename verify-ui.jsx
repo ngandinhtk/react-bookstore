@@ -1,0 +1,14 @@
+﻿import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import assert from 'node:assert/strict';
+import {LanguageProvider} from './src/i18n';
+import {App,matchesProductType} from './src/main';
+import OrderButtons from './src/OrderButtons';
+import {shopContacts,orderMessage,contactLink} from './src/shop';
+const render=(lang,element)=>renderToStaticMarkup(<LanguageProvider initialLanguage={lang}>{element}</LanguageProvider>);
+const en=render('en',<App/>),vi=render('vi',<App/>);
+assert(en.includes('A quieter corner.'));assert(en.includes('Bookshop'));assert(en.includes('Book bag'));assert(en.includes('BOOKSHOP &amp; READING ROOM'));assert(!en.includes('Kệ sách'));assert(vi.includes('Kệ sách'));assert(vi.includes('Một góc yên.'));assert(en.includes('aria-pressed="true">EN'));
+assert(en.includes('Product categories'));assert(en.includes('All products'));assert(en.includes('E-readers'));assert(vi.includes('Danh mục sản phẩm'));assert(vi.includes('Máy đọc sách'));
+assert.equal(matchesProductType({productType:'ereader'},'Máy đọc sách'),true);assert.equal(matchesProductType({productType:'ereader'},'Sách'),false);assert.equal(matchesProductType({productType:'book'},'Sách'),true);assert.equal(matchesProductType({productType:'ereader'},'Tất cả sản phẩm'),true);
+const book={id:100,title:'Suy Tưởng',price:150000,stock:1};shopContacts.messenger='https://m.me/stillleaf';shopContacts.zalo='https://zalo.me/84901234567';const buttons=render('en',<OrderButtons book={book}/>);assert(buttons.includes('Order via'));assert(buttons.includes('Facebook'));assert(buttons.includes('https://m.me/stillleaf'));assert(buttons.includes('https://zalo.me/84901234567'));assert(buttons.includes('Hi Stillleaf'));assert(!buttons.includes('Đặt qua'));assert(orderMessage(book,'vi').includes('Chào shop'));assert(orderMessage({...book,price:null},'en').includes('Please let me know the price.'));const out=render('en',<OrderButtons book={{...book,stock:0}}/>);assert(!out.includes('href="https://m.me/'));assert(out.includes('out of stock'));assert.equal(contactLink('javascript:alert(1)','messenger'),'');assert.equal(contactLink('https://facebook.com.evil.example/shop','messenger'),'');console.log('PASS: Vietnamese/English home, language switch, brand, Facebook/Zalo buttons, order messages, sold-out state, safe links');
+const reader={...book,productType:'ereader',title:'Kindle Paperwhite'};assert(orderMessage(reader,'vi').includes('đặt máy đọc sách'));assert(orderMessage(reader,'en').includes('order this e-reader'));const readerButtons=render('en',<OrderButtons book={reader}/>);assert(readerButtons.includes('ORDER AN E-READER FROM STILLLEAF'));assert(readerButtons.includes('E-reader order message'));assert(!readerButtons.includes('book order message'));console.log('PASS: e-reader order messages and labels');
