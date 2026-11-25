@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "start": "node server.js",
+    "start": "node --env-file=.env server.js",
     "test": "node --test",
     "test:ui": "esbuild verify-ui.jsx --bundle --platform=node --format=esm --packages=external --loader:.css=empty --outfile=.verify-ui.mjs && node .verify-ui.mjs"
   },

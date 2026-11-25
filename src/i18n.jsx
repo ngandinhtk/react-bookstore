@@ -53,7 +53,12 @@ const translations = {
  'Nội dung đặt sách để gửi shop':'Order message for the shop','Nội dung đặt sách':'Order message','Sao chép nội dung':'Copy message',
  'Đã sao chép. Bạn có thể dán vào cuộc trò chuyện với shop.':'Copied. Paste it into your conversation with the shop.',
  'Bạn có thể chọn và sao chép nội dung trong ô bên dưới.':'Select and copy the message below.',
- 'triết học':'Philosophy','Văn học':'Fiction','Tiểu luận':'Essays','Thiên nhiên':'Nature','Tư tưởng':'Ideas','Thơ':'Poetry'
+ 'triết học':'Philosophy','Văn học':'Fiction','Tiểu luận':'Essays','Thiên nhiên':'Nature','Tư tưởng':'Ideas','Thơ':'Poetry',
+ 'Giỏ hàng':'Shopping bag','Số lượng':'Quantity','Tăng số lượng':'Increase quantity','Giảm số lượng':'Decrease quantity','Tổng tạm tính':'Subtotal','Thanh toán':'Checkout',
+ 'Thông tin nhận hàng':'Delivery details','Họ tên':'Full name','Số điện thoại':'Phone number','Địa chỉ nhận hàng':'Delivery address','Gửi đơn qua Zalo':'Send order via Zalo',
+ 'Điền đầy đủ họ tên, số điện thoại và địa chỉ để gửi đơn.':'Enter your name, phone number, and address to send the order.',
+ 'Nhờ shop xác nhận tổng tiền.':'Please confirm the total.','Giỏ hàng trống.':'Your shopping bag is empty.',
+ 'Chưa có sản phẩm trong giỏ hàng.':'No items in your shopping bag.'
 };
 export function translate(text, lang) { return lang === 'en' ? (translations[text] ?? text) : text; }
 const LanguageContext = createContext(null);

@@ -24,7 +24,7 @@ export function mapRows(rows) {
     let productType = 'book';
     if (['máy đọc sách','máy đọc sách điện tử','e-reader','ereader'].includes(rawType)) productType = 'ereader';
     else if (rawType && !['sách','book'].includes(rawType)) throw Error('Loại sản phẩm không được hỗ trợ.');
-    const status = get('Trạng thái bán','Trạng thái sản phẩm','Trạng thái đọc').normalize('NFC').toLocaleLowerCase('vi-VN').replace(/\s+/g,' ');
+    const status = get('Trạng thái bán','Trạng thái sản phẩm','Trạng thái','Trạng thái đọc').normalize('NFC').toLocaleLowerCase('vi-VN').replace(/\s+/g,' ');
     if (status !== 'đang bán') return [];
     const publish = get('published');
     if (['false','0','ẩn','no'].includes(publish.toLowerCase())) return [];

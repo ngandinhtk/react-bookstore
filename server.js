@@ -4,14 +4,33 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createStore} from './discussion-store.js';
 import {createCatalog} from './catalog.js';
+import {createAiCatalogEnrichment} from './ai-catalog.js';
+import {validateOrder} from './order-submission.js';
 const root=path.dirname(fileURLToPath(import.meta.url));
-export async function createApp({database=path.join(root,'data','discussions.sqlite'),catalog=createCatalog()}={}){
+export async function createApp({database=path.join(root,'data','discussions.sqlite'),catalog=createCatalog(),orderSheetUrl=process.env.GOOGLE_SHEETS_ORDER_URL,orderToken=process.env.GOOGLE_SHEETS_ORDER_TOKEN,fetcher=fetch}={}){
  if(database!==':memory:')await mkdir(path.dirname(database),{recursive:true});const store=createStore(database);
+ const aiCatalog=createAiCatalogEnrichment({cacheFile:path.join(root,'data','ai-catalog.json')});
  const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data))};
  const server=http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');const match=url.pathname.match(/^\/api\/books\/(\d+)\/discussions$/);
  if(url.pathname.startsWith('/api/')){
- if(url.pathname==='/api/books'&&req.method==='GET'){const data=await catalog.get();return json(res,data.available?200:503,data)}
+ if(url.pathname==='/api/books'&&req.method==='GET'){const data=await catalog.get();if(!data.available)return json(res,503,data);const books=await aiCatalog.enrich(data.books);return json(res,200,{...data,books})}
+ if(url.pathname==='/api/orders'){
+ if(req.method!=='POST')return json(res,405,{error:'Phương thức không được hỗ trợ.'});
+ const origin=req.headers.origin;if(origin&&origin!==`http://${req.headers.host}`&&origin!==`https://${req.headers.host}`&&origin!=='http://127.0.0.1:5173'&&origin!=='http://localhost:5173')return json(res,403,{error:'Nguồn gửi không hợp lệ.'});
+ if(!req.headers['content-type']?.startsWith('application/json'))return json(res,415,{error:'Vui lòng gửi dữ liệu JSON.'});
+ let chunks=[],size=0;for await(const chunk of req){size+=chunk.length;if(size>16384){json(res,413,{error:'Nội dung quá dài.'});return}chunks.push(chunk)}
+ let input;try{input=JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{return json(res,400,{error:'Dữ liệu JSON không hợp lệ.'})}
+ const data=await catalog.get();if(!data.available)return json(res,503,{error:'Chưa tải được danh mục sản phẩm.'});
+ let order;try{order=validateOrder(input,data.books)}catch(e){return json(res,400,{error:e.message})}
+ let endpoint;try{endpoint=new URL(orderSheetUrl);if(endpoint.protocol!=='https:')throw Error()}catch{return json(res,503,{error:'Chưa cấu hình lưu đơn hàng vào Google Sheets.'})}
+ if(!orderToken)return json(res,503,{error:'Chưa cấu hình lưu đơn hàng vào Google Sheets.'});
+ try{
+ const response=await fetcher(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...order,token:orderToken}),signal:AbortSignal.timeout(15000)});
+ const result=await response.json();if(!response.ok||result?.ok!==true||result.orderId!==order.orderId)throw Error();
+ return json(res,201,{orderId:order.orderId});
+ }catch{return json(res,502,{error:'Chưa lưu được đơn hàng vào Google Sheets. Vui lòng thử lại.'})}
+ }
  const data=await catalog.get();if(!data.available)return json(res,503,{error:'Chưa tải được danh mục sách.'});
  const book=match&&data.books.find(b=>b.id===Number(match[1]));if(!book||book.productType==='ereader')return json(res,404,{error:'Không tìm thấy sách.'});const bookId=Number(match[1]);
  if(req.method==='GET')return json(res,200,store.list(bookId));

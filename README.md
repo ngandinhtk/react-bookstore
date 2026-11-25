@@ -25,7 +25,7 @@ Khi phát triển, giữ `npm.cmd start` chạy trong một terminal, mở termi
 - API kiểm tra nội dung, giới hạn độ dài và ngăn trả lời nhầm sách. Nội dung do người dùng nhập được React hiển thị như văn bản.
 - SQLite lưu bền vững tại `data/discussions.sqlite`; sao lưu toàn bộ thư mục `data` khi máy chủ đã dừng.
 
-Bình luận dùng chung cho người truy cập cùng máy chủ, không phải dữ liệu lưu riêng trong trình duyệt. Hiện dùng tên hiển thị, chưa có đăng nhập hoặc quản trị nội dung. Bản này chưa có thanh toán, kho thực tế hay mã affiliate.
+Bình luận dùng chung cho người truy cập cùng máy chủ, không phải dữ liệu lưu riêng trong trình duyệt. Hiện dùng tên hiển thị, chưa có đăng nhập hoặc quản trị nội dung. Giỏ hàng lưu trên trình duyệt; thanh toán là luồng xác nhận thủ công qua Zalo, không trừ kho tự động hay thu tiền trên website.
 
 ## Kiểm tra
 
@@ -79,7 +79,7 @@ Chỉ dòng có cột **Trạng thái bán**, **Trạng thái sản phẩm** ho�
 
 ### Đặt mua qua Messenger / Zalo
 
-Cấu hình link shop tại `src/shop.js`: `messenger` (https://m.me/tenpage), `zalo` (https://zalo.me/sodienthoai). Chỉ nhận link HTTPS trên đúng tên miền. Để trống sẽ khóa nút tương ứng; tồn kho bằng 0 sẽ khóa cả hai nút. Sau khi sửa cấu hình chạy `npm.cmd run build`.
+Cấu hình link shop tại `src/shop.js`: `messenger` (https://m.me/tenpage), `phone` và `zalo` (đang cấu hình số `0924517884`, Zalo `84924517884`). Chỉ nhận link HTTPS trên đúng tên miền. Để trống sẽ khóa nút tương ứng; tồn kho bằng 0 sẽ khóa cả hai nút. Sau khi sửa cấu hình chạy `npm.cmd run build`.
 
 Chi tiết sách có nút mở kênh liên hệ trong tab mới và mẫu tin nhắn chứa tên sách, mã sách, giá. Người mua có thể sao chép nội dung và dán vào cuộc trò chuyện; website không tự gửi tin nhắn.
 
