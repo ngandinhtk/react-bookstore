@@ -1,0 +1,20 @@
+{
+  "name": "stillleaf-react",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "start": "node --env-file=.env server.js",
+    "test": "node --test",
+    "test:ui": "esbuild verify-ui.jsx --bundle --platform=node --format=esm --packages=external --loader:.css=empty --outfile=.verify-ui.mjs && node .verify-ui.mjs"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}
