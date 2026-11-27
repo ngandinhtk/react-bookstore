@@ -1,4 +1,4 @@
-﻿import http from 'node:http';
+import http from 'node:http';
 import {readFile,mkdir,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -14,7 +14,22 @@ export async function createApp({database=path.join(root,'data','discussions.sql
  const server=http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');const match=url.pathname.match(/^\/api\/books\/(\d+)\/discussions$/);
  if(url.pathname.startsWith('/api/')){
- if(url.pathname==='/api/books'&&req.method==='GET'){const data=await catalog.get();if(!data.available)return json(res,503,data);const books=await aiCatalog.enrich(data.books);return json(res,200,{...data,books})}
+ if(url.pathname==='/api/books'&&req.method==='GET'){
+  const data=await catalog.get();if(!data.available)return json(res,503,data);
+  const books=await aiCatalog.enrich(data.books);
+  if(orderSheetUrl&&orderToken){
+   const updates=books.map((book,i)=>({book,original:data.books[i]})).filter(({book,original})=>book.sheetRow&&(book.category!==original.category||book.description!==original.description));
+   for(let i=0;i<updates.length;i+=8){
+    await Promise.all(updates.slice(i,i+8).map(async({book})=>{
+     try{
+      const response=await fetcher(orderSheetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sheet:'Book Manage',action:'update',row:book.sheetRow,values:{'Thể loại':book.category,'Nội dung sách':book.description},token:orderToken}),signal:AbortSignal.timeout(15000)});
+      if(!response.ok)return;const result=await response.json();if(result?.ok!==true)return;
+     }catch{}
+    }));
+   }
+  }
+  return json(res,200,{...data,books:books.map(({sheetRow,...book})=>book)});
+ }
  if(url.pathname==='/api/orders'){
  if(req.method!=='POST')return json(res,405,{error:'Phương thức không được hỗ trợ.'});
  const origin=req.headers.origin;if(origin&&origin!==`http://${req.headers.host}`&&origin!==`https://${req.headers.host}`&&origin!=='http://127.0.0.1:5173'&&origin!=='http://localhost:5173')return json(res,403,{error:'Nguồn gửi không hợp lệ.'});

@@ -10,7 +10,7 @@ export function mapRows(rows) {
   }
   const seen = new Set();
   const palette = [['#ba643f','#fff0c5'],['#e5ddbc','#354f3c'],['#4b604a','#efead3'],['#d7a75d','#343c30'],['#7b796a','#fff3d8']];
-  return rows.slice(1).flatMap(row => {
+  return rows.slice(1).flatMap((row, rowIndex) => {
     const get = (...names) => {
       for (const name of names) {
         const index = headers.indexOf(name.toLowerCase());
@@ -25,7 +25,7 @@ export function mapRows(rows) {
     if (['máy đọc sách','máy đọc sách điện tử','e-reader','ereader'].includes(rawType)) productType = 'ereader';
     else if (rawType && !['sách','book'].includes(rawType)) throw Error('Loại sản phẩm không được hỗ trợ.');
     const status = get('Trạng thái bán','Trạng thái sản phẩm','Trạng thái','Trạng thái đọc').normalize('NFC').toLocaleLowerCase('vi-VN').replace(/\s+/g,' ');
-    if (status !== 'đang bán') return [];
+    if (!['đang bán','đã bán'].includes(status)) return [];
     const publish = get('published');
     if (['false','0','ẩn','no'].includes(publish.toLowerCase())) return [];
     const identity = get('id') || title.normalize('NFC').toLowerCase();
@@ -38,6 +38,7 @@ export function mapRows(rows) {
     const rawStock = get('stock','Tồn kho');
     return [{
       id,
+      sheetRow: rowIndex + 2,
       title,
       productType,
       author: get('Tác giả','Thương hiệu','author') || (productType === 'ereader' ? '' : 'Chưa cập nhật tác giả'),
@@ -47,6 +48,7 @@ export function mapRows(rows) {
       currency: 'VND',
       stock: /^\d+$/.test(rawStock) ? Number(rawStock) : null,
       buyUrl: safeUrl(get('buy_url')),
+      isSold: status === 'đã bán',
       coverUrl: safeUrl(get('cover_url')),
       color,
       ink,

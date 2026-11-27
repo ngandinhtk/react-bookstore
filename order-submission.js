@@ -18,6 +18,8 @@ export function validateOrder(input, books) {
   }
 
   const products = new Map(books.map(book => [book.id, book]));
+  const voucher = typeof input.voucher === 'string' ? input.voucher.trim().toUpperCase() : '';
+  if (voucher && !['SALE5', 'FREESHIP'].includes(voucher)) throw new TypeError('Mã voucher không hợp lệ.');
   const seen = new Set();
   let total = 0;
   let hasUnknownPrice = false;
@@ -28,6 +30,7 @@ export function validateOrder(input, books) {
     if (!Number.isSafeInteger(productId) || !book || seen.has(productId)) {
       throw new TypeError('Sản phẩm trong đơn hàng không hợp lệ.');
     }
+    if (book.isSold) throw new TypeError('Sách đã bán không thể đặt hàng.');
     if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99 || (book.stock !== null && quantity > book.stock)) {
       throw new TypeError(`Số lượng "${book.title}" không hợp lệ hoặc vượt quá tồn kho.`);
     }
@@ -39,11 +42,14 @@ export function validateOrder(input, books) {
     return { productId, title: book.title, quantity, unitPrice, lineTotal };
   });
 
+  const discount = voucher === 'SALE5' && !hasUnknownPrice ? Math.round(total * 0.05) : 0;
   return {
     orderId: randomUUID(),
     createdAt: new Date().toISOString(),
     customer: { name, phone, address },
     items,
-    total: hasUnknownPrice ? null : total,
+    voucher,
+    discount,
+    total: hasUnknownPrice ? null : total - discount,
   };
 }
